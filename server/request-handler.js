@@ -30,22 +30,27 @@ var requestHandler = function(request, response) {
   if(request.method == "GET"){
     statusCode = 200;
     if(request.url !== "/classes/messages" && request.url.slice(0, 13) !== "/classes/room"){
-      console.log('404');
       statusCode = 404;
       response.writeHead(statusCode, headers);
       response.end();
     } 
   }
-  request.on('data', function(data){
-      if(data !== undefined){  
-        info += data;
-        storage.results.push(JSON.parse(info));
-      }
-  });
+    request.on('data', function(data){
+        if(data !== undefined){  
+          var parsedObj = JSON.parse(data);
+          var obj = {};
+          obj.roomname = parsedObj.roomname || 'lobby';
+          obj.username = parsedObj.username || 'anonymous';
+          obj.message = parsedObj.message || '' ;
+          obj.text = parsedObj.text || parsedObj.message || '';
+          obj.createdAt = new Date().toISOString();
+          obj.objectId = new Date().toISOString();
+          obj.updatedAt = new Date().toISOString();
+          storage.results.push(obj);
+        }
+    });
   response.writeHead(statusCode, headers);  
-  // request.on('end', function(){
   response.end(JSON.stringify(storage));
-  // });
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
