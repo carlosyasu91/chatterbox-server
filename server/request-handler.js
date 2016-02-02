@@ -17,8 +17,13 @@ var storage = {
 };
 
 var http = require("http");
+var url = require("url");
+
 var requestHandler = function(request, response) {
   console.log('Serving request type' + request.method + "for url" + request.url);
+  var urlObj = url.parse(request.url);
+  console.log(urlObj);
+  // console.log('Headers' + JSON.stringify(request.options));
   var msg = [];
   var headers = defaultCorsHeaders;
   headers['Content-Type'] = "application/json";
@@ -44,13 +49,17 @@ var requestHandler = function(request, response) {
           obj.message = parsedObj.message || '' ;
           obj.text = parsedObj.text || parsedObj.message || '';
           obj.createdAt = new Date().toISOString();
+          obj.createdAtNum = Date.now();
+          // console.log(obj.createdAtNum)
           obj.objectId = new Date().toISOString();
           obj.updatedAt = new Date().toISOString();
           storage.results.push(obj);
         }
     });
+    //order storage by created before sending
+    var sortedStorage = _.sortBy(storage.results, 'createdAtNum');
   response.writeHead(statusCode, headers);  
-  response.end(JSON.stringify(storage));
+  response.end(JSON.stringify(sortedStorage));
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
