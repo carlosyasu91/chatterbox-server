@@ -18,6 +18,7 @@ var storage = {
 
 var http = require("http");
 var url = require("url");
+var underscore = require('../node_modules/underscore/underscore.js');
 
 var requestHandler = function(request, response) {
   console.log('Serving request type' + request.method + "for url" + request.url);
@@ -34,7 +35,7 @@ var requestHandler = function(request, response) {
   }
   if(request.method == "GET"){
     statusCode = 200;
-    if(request.url !== "/classes/messages" && request.url.slice(0, 13) !== "/classes/room"){
+    if(request.url.slice(0, 17) !== "/classes/messages" && request.url.slice(0, 13) !== "/classes/room"){
       statusCode = 404;
       response.writeHead(statusCode, headers);
       response.end();
@@ -50,16 +51,21 @@ var requestHandler = function(request, response) {
           obj.text = parsedObj.text || parsedObj.message || '';
           obj.createdAt = new Date().toISOString();
           obj.createdAtNum = Date.now();
-          // console.log(obj.createdAtNum)
           obj.objectId = new Date().toISOString();
           obj.updatedAt = new Date().toISOString();
-          storage.results.push(obj);
+          storage.results.push(obj); 
         }
     });
-    //order storage by created before sending
-    var sortedStorage = _.sortBy(storage.results, 'createdAtNum');
-  response.writeHead(statusCode, headers);  
-  response.end(JSON.stringify(sortedStorage));
+
+    if(urlObj.query !== null && urlObj.query.indexOf('order=-createdAt') > -1 ){
+      var sortedStorage ={}; 
+      sortedStorage.results = underscore.sortBy(storage.results, 'createdAtNum').reverse();
+      response.writeHead(statusCode, headers);  
+      response.end(JSON.stringify(sortedStorage));
+    } else {
+      response.writeHead(statusCode, headers);  
+      response.end(JSON.stringify(storage));
+    }
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).

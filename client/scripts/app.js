@@ -62,7 +62,7 @@ var app = {
       url: app.server,
       type: 'GET',
       contentType: 'application/json',
-      // data: { order: '-createdAt'},
+      data: { order: '-createdAt'},
       success: function(data) {
         // Don't bother if we have nothing to work with
         console.log('success before if');
