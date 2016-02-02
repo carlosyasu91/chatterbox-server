@@ -18,19 +18,20 @@ var storage = {
 
 var http = require("http");
 var requestHandler = function(request, response) {
+  console.log('Serving request type' + request.method + "for url" + request.url);
   var msg = [];
   var headers = defaultCorsHeaders;
   headers['Content-Type'] = "application/json";
   var info = '';
-  var statusCode;
+  var statusCode =200;
   if(request.method == "POST") {
     statusCode = 201;
   }
   if(request.method == "GET"){
     statusCode = 200;
     if(request.url !== "/classes/messages" && request.url.slice(0, 13) !== "/classes/room"){
+      console.log('404');
       statusCode = 404;
-      console.log('our url', request.url);
       response.writeHead(statusCode, headers);
       response.end();
     } 

@@ -5,7 +5,7 @@ var app = {
 
   //TODO: The current 'addFriend' function just adds the class 'friend'
   //to all messages sent by the user
-  server: 'https://127.0.0.1:3000/classes/messages/', //doublecheck
+  server: 'http://127.0.0.1:3000/classes/messages', //doublecheck
   username: 'anonymous',
   roomname: 'lobby',
   lastMessageId: 0,
@@ -57,21 +57,23 @@ var app = {
   },
 
   fetch: function(animate) {
+    console.log('this is fetching');
     $.ajax({
       url: app.server,
       type: 'GET',
       contentType: 'application/json',
-      data: { order: '-createdAt'},
+      // data: { order: '-createdAt'},
       success: function(data) {
         // Don't bother if we have nothing to work with
-        if (!data.results || !data.results.length) { return; }
+        console.log('success before if');
+        app.stopSpinner();
+        if (!data.results || !data.results.length) { console.log('empty'); return; }
 
         // Get the last message
         var mostRecentMessage = data.results[data.results.length-1];
         var displayedRoom = $('.chat span').first().data('roomname');
-        app.stopSpinner();
         // Only bother updating the DOM if we have a new message
-        if (mostRecentMessage.objectId !== app.lastMessageId || app.roomname !== displayedRoom) {
+        // if (mostRecentMessage.objectId !== app.lastMessageId || app.roomname !== displayedRoom) {
           // Update the UI with the fetched rooms
           app.populateRooms(data.results);
 
@@ -80,7 +82,7 @@ var app = {
 
           // Store the ID of the most recent message
           app.lastMessageId = mostRecentMessage.objectId;
-        }
+        // }
       },
       error: function(data) {
         console.error('chatterbox: Failed to fetch messages');
